@@ -1,0 +1,261 @@
+<!-- stock_analysis.html -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+
+{% block content %}
+<header>
+    <style>
+        .indicator-section {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+    </style>
+</header>
+<h1>Stock Analysis Results For {{symbol}}</h1>
+
+<h2>Last Closing Price: {{ last_close_price|floatformat:4 }}</h2>
+
+<hr>
+
+<h2>Summary</h2>
+<p dir="rtl" style="text-align:right">{{ summary }}</p>
+
+<hr>
+
+<h2>Next Close Price Predictions</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Percentage Change</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="color: {{ arima.color }};">
+            <td>ARIMA</td>
+            <td>{{ arima.price|floatformat:4 }}</td>
+            <td>{{ arima.percentage|floatformat:2 }}%</td>
+        </tr>
+        <tr style="color: {{ tensorflow.color }};">
+            <td>Tensorflow</td>
+            <td>{{ tensorflow.price|floatformat:4 }}</td>
+            <td>{{ tensorflow.percentage|floatformat:2 }}%</td>
+        </tr>        
+        <tr style="color: {{ linear_regression.color }};">
+            <td>Linear Regression (Long term analysis)</td>
+            <td>{{ linear_regression.price|floatformat:4 }}</td>
+            <td>{{ linear_regression.percentage|floatformat:2 }}%</td>
+        </tr>
+        <tr style="color: {{ rf.color }};">
+            <td>Random Forest</td>
+            <td>{{ rf.price|floatformat:4 }}</td>
+            <td>{{ rf.percentage|floatformat:2 }}%</td>
+        </tr>
+        <tr style="color: {{ gs.color }};">
+            <td>Gradient Boosting</td>
+            <td>{{ gs.price|floatformat:4 }}</td>
+            <td>{{ gs.percentage|floatformat:2 }}%</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+
+<div style="position: relative;">
+    <div id="chart-container">
+        <div class="indicator-section">
+            <h2>Bollinger Bands</h2>
+            <h3 style="color: {{ bollinger.color }};"> {{ bollinger.buy_sell }} </h3>
+            <p>{{ bollinger.desctipyion }}</p>
+            <div>{{ bollinger.chart|safe }}</div>
+        </div>
+    </div>
+    <i class="fas fa-question-circle tooltip-icon" data-modal="modal1" style="position: absolute; top: 10px; right: 10px; cursor: pointer;"></i>
+</div>
+
+
+<hr>
+
+<div style="position: relative;">
+    <div id="chart-container">
+        <div class="indicator-section">
+            <h2>Seasonal Time Series</h2>
+        
+            <p>{{ bollinger.desctipyion }}</p>
+            <div>{{ stl.chart|safe }}</div>
+        </div>
+    </div>
+    <i class="fas fa-question-circle tooltip-icon" data-modal="modal2" style="position: absolute; top: 10px; right: 10px; cursor: pointer;"></i>
+</div>
+
+
+<hr>
+
+
+<div class="indicator-section">
+    <h2>Stochastic Oscilator</h2>
+    <h3 style="color: {{ stochastic.color }};">{{stochastic.buy_sell}}</h3>
+    <p> Percent K: {{ stochastic.percent_k }}</p>
+    <p> Percent D: {{ stochastic.percent_d }}</p>
+    <div>{{ stochastic.chart|safe }}</div>
+</div>
+
+<hr>
+
+<div class="indicator-section">
+    <h2>Fibonacci Retracement Levels</h2>
+    <h3 style="color: {{ fib.color }};">{{fib.buy_sell}}</h3>
+    <div>{{ fib.chart|safe }}</div>
+</div>
+
+<hr>
+
+<div class="indicator-section">
+    <h2>Average True Range(ATR)</h2>
+    <h3 style="color: {{ atr.color }};">{{atr.buy_sell}}</h3>
+    <p style="font-weight: bold; color: chocolate;"> Stop loss: {{ atr.stop_lose|floatformat:3 }}</p>
+    <div>{{ atr.chart|safe }}</div>
+</div>
+
+<hr>
+
+<div class="indicator-section">
+    <h2>On-Balance Volume (OBV)</h2>
+    <h3 style="color: {{ obv.color }};">{{obv.buy_sell}}</h3>
+    <div>{{ obv.chart|safe }}</div>
+</div>
+
+<hr>
+
+<div class="indicator-section">
+    <h2>Price Chart</h2>
+    <div>{{ price_chart|safe }}</div>
+    <p>{{ price_chart_explanation }}</p>
+</div>
+
+<hr>
+
+<div class="indicator-section">
+    <h2>RSI Chart</h2>
+    <div>{{ rsi_chart|safe }}</div>
+    <p>{{ rsi_chart_explanation }}</p>
+</div>
+
+<hr>
+
+
+<!-- The Modal -->
+<div id="modal1" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+        {{ bollinger.description|safe }}  
+      </p>
+    </div>
+  </div>
+
+  <div id="modal2" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+        {{ stl.description|safe }}  
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Function to open the modal
+    function openPopup(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = "block";
+    }
+    
+    // Get all close buttons
+    var closeButtons = document.getElementsByClassName("close");
+    
+    // Function to close the modal when the user clicks on any <span> (x)
+    for (let btn of closeButtons) {
+        btn.onclick = function() {
+            var modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+    
+    // Attach openPopup function to all tooltip icons
+    var tooltips = document.getElementsByClassName("tooltip-icon");
+    for (let icon of tooltips) {
+        icon.onclick = function() {
+            var modalId = this.getAttribute("data-modal");
+            openPopup(modalId);
+        }
+    }
+    
+    // Function to close the modal if the user clicks outside of it
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
+    }
+    </script>
+    
+    
+{% endblock %}
